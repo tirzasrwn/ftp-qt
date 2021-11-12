@@ -3,7 +3,18 @@
 
 #include "client.h"
 
-enum subThreadTask{TConnect, TDisconnect, TCd, TDown, TUp, TDele, TRmd, TRename, TMkd};
+enum subThreadTask
+{
+    TConnect,
+    TDisconnect,
+    TCd,
+    TDown,
+    TUp,
+    TDele,
+    TRmd,
+    TRename,
+    TMkd
+};
 
 class ClientThread : public QThread
 {
@@ -14,12 +25,13 @@ public:
     void bind(Client *c);
     subThreadTask task;
     std::vector<std::string> arglist;
-    Client* curClient;
+    Client *curClient;
 
 protected:
     void run();
+
 private:
-    Client* client;
+    Client *client;
     void flushList();
 private slots:
     void stop();
@@ -29,6 +41,5 @@ signals:
     void emitSuccess();
     void emitClearList();
 };
-
 
 #endif // CLIENTTHREAD_H

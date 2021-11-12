@@ -1,21 +1,23 @@
 #include "clientthread.h"
 
-ClientThread::ClientThread() {
-    for(int i=0; i<5; i++)
+ClientThread::ClientThread()
+{
+    for (int i = 0; i < 5; i++)
         arglist.push_back("");
     curClient = new Client();
-
 }
 
-ClientThread::~ClientThread() {
+ClientThread::~ClientThread()
+{
     delete curClient;
 }
 
-
-void ClientThread::run() {
-    switch (task) {
+void ClientThread::run()
+{
+    switch (task)
+    {
     case TConnect:
-        if(!curClient->connectServer())
+        if (!curClient->connectServer())
             emit emitSuccess();
         flushList();
         break;
@@ -52,36 +54,40 @@ void ClientThread::run() {
     default:
         break;
     }
-
 }
 
-void ClientThread::stop() {
-    std::cout<<"subthread finished"<<std::endl;
+void ClientThread::stop()
+{
+    std::cout << "subthread finished" << std::endl;
     isInterruptionRequested();
     quit();
     wait();
 }
 
-void ClientThread::flushList() {
+void ClientThread::flushList()
+{
     emit emitClearList();
     int num = curClient->filelist.size();
     QString type, size, name;
     std::vector<std::string> eachrow;
-    for(int i=0; i<num; i++) {
+    for (int i = 0; i < num; i++)
+    {
         eachrow = curClient->filelist[i];
         type = QString::fromStdString(eachrow[0].substr(0, 1));
-        if(type=="-")   continue;
+        if (type == "-")
+            continue;
         size = QString::fromStdString(eachrow[4]);
         name = QString::fromStdString(eachrow[8]);
         emit emitListItem(type, size, name);
     }
-    for(int i=0; i<num; i++) {
+    for (int i = 0; i < num; i++)
+    {
         eachrow = curClient->filelist[i];
         type = QString::fromStdString(eachrow[0].substr(0, 1));
-        if(type=="d")   continue;
+        if (type == "d")
+            continue;
         size = QString::fromStdString(eachrow[4]);
         name = QString::fromStdString(eachrow[8]);
         emit emitListItem(type, size, name);
     }
 }
-

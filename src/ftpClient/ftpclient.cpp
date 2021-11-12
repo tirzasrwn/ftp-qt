@@ -1,9 +1,8 @@
 #include "ftpclient.h"
 #include "ui_ftpclient.h"
 
-ftpClient::ftpClient(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::ftpClient)
+ftpClient::ftpClient(QWidget *parent) : QMainWindow(parent),
+                                        ui(new Ui::ftpClient)
 {
     clientThread = new ClientThread();
 
@@ -12,7 +11,7 @@ ftpClient::ftpClient(QWidget *parent) :
     connect(clientThread, SIGNAL(finished()), clientThread, SLOT(stop()));
     connect(clientThread, SIGNAL(emitClearList()), this, SLOT(recvClearList()));
     connect(clientThread->curClient->infoThread, SIGNAL(emitInfo(QString)), this, SLOT(recvInfo(QString)));
-    //若执行此行，run结束后clientThread会调用析构
+    // If this line is executed, the clientThread will call the destructor after the run is over
     //connect(clientThread, SIGNAL(finished()), clientThread, SLOT(deleteLater()));
 
     ui->setupUi(this);
@@ -27,53 +26,60 @@ ftpClient::~ftpClient()
 //slot function------------------------------------------------
 void ftpClient::on_connectButton_clicked()
 {
-    if(!clientThread->isRunning()){
-    if(!connected) {
-        QString ip_addr = ui->ipEdit->text();
-        QString username = ui->userEdit->text();
-        QString password = ui->passEdit->text();
-        clientThread->curClient->login(ip_addr, username, password);
-        clientThread->task = TConnect;
-        clientThread->start();
-    }
-    else {
-        clientThread->task = TDisconnect;
-        clientThread->start();
-        connected = false;
-        ui->connectButton->setText("Connect");
-    }
+    if (!clientThread->isRunning())
+    {
+        if (!connected)
+        {
+            QString ip_addr = ui->ipEdit->text();
+            QString username = ui->userEdit->text();
+            QString password = ui->passEdit->text();
+            clientThread->curClient->login(ip_addr, username, password);
+            clientThread->task = TConnect;
+            clientThread->start();
+        }
+        else
+        {
+            clientThread->task = TDisconnect;
+            clientThread->start();
+            connected = false;
+            ui->connectButton->setText("Connect");
+        }
     }
 }
 
 void ftpClient::on_downButton_clicked()
 {
-    QTreeWidgetItem* curItem = ui->fileTree->currentItem();
+    QTreeWidgetItem *curItem = ui->fileTree->currentItem();
     QString downName;
-    if(curItem)
+    if (curItem)
         downName = curItem->text(2);
     else
         return;
     QString saveDir = QFileDialog::getExistingDirectory(this, "Choose save path");
-    if(!clientThread->isRunning()) {
-    clientThread->task = TDown;
-    clientThread->arglist[0] = downName.toStdString();
-    clientThread->arglist[1] = saveDir.toStdString();
-    clientThread->start();
+    if (!clientThread->isRunning())
+    {
+        clientThread->task = TDown;
+        clientThread->arglist[0] = downName.toStdString();
+        clientThread->arglist[1] = saveDir.toStdString();
+        clientThread->start();
     }
 }
 
-void ftpClient::recvListItem(QString type, QString size, QString name) {
-    QTreeWidgetItem* item = new QTreeWidgetItem(ui->fileTree);
+void ftpClient::recvListItem(QString type, QString size, QString name)
+{
+    QTreeWidgetItem *item = new QTreeWidgetItem(ui->fileTree);
     item->setText(0, type);
     item->setText(1, size);
     item->setText(2, name);
     ui->fileTree->addTopLevelItem(item);
 }
 
-void ftpClient::recvInfo(QString info) {
+void ftpClient::recvInfo(QString info)
+{
     allInfo += info;
-    if(allInfo.size()>=10000) {
-        allInfo = allInfo.mid(allInfo.size()-10000);
+    if (allInfo.size() >= 10000)
+    {
+        allInfo = allInfo.mid(allInfo.size() - 10000);
     }
     ui->infoEdit->setText(allInfo);
     QTextCursor cursor = ui->infoEdit->textCursor();
@@ -81,18 +87,22 @@ void ftpClient::recvInfo(QString info) {
     ui->infoEdit->setTextCursor(cursor);
 }
 
-void ftpClient::recvSuccess() {
-    if(!connected) {
+void ftpClient::recvSuccess()
+{
+    if (!connected)
+    {
         connected = true;
         ui->connectButton->setText("Disconnect");
     }
-    else {
+    else
+    {
         connected = false;
         ui->connectButton->setText("Connect");
     }
 }
 
-void ftpClient::recvClearList() {
+void ftpClient::recvClearList()
+{
     ui->fileTree->clear();
 }
 
@@ -108,10 +118,11 @@ void ftpClient::on_upButton_clicked()
 void ftpClient::on_fileTree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     QString type = item->text(0);
-    if(type!="d")
+    if (type != "d")
         return;
     QString file = item->text(2);
-    if(!clientThread->isRunning()) {
+    if (!clientThread->isRunning())
+    {
         clientThread->arglist[0] = file.toStdString();
         clientThread->task = TCd;
         clientThread->start();
@@ -120,18 +131,18 @@ void ftpClient::on_fileTree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 
 void ftpClient::on_renameButton_clicked()
 {
-    QTreeWidgetItem* curItem = ui->fileTree->currentItem();
+    QTreeWidgetItem *curItem = ui->fileTree->currentItem();
     QString srcName, dstName;
-    if(curItem)
+    if (curItem)
         srcName = curItem->text(2);
     else
         return;
-    if(srcName=="." || srcName=="..")
+    if (srcName == "." || srcName == "..")
         return;
     dstName = QInputDialog::getText(this, "Please input a name", "New name of the file");
-    if(dstName.isEmpty())
+    if (dstName.isEmpty())
         return;
-    if(dstName=="." || dstName=="..")
+    if (dstName == "." || dstName == "..")
         return;
     clientThread->arglist[0] = srcName.toStdString();
     clientThread->arglist[1] = dstName.toStdString();
@@ -139,19 +150,18 @@ void ftpClient::on_renameButton_clicked()
     clientThread->start();
 }
 
-
 void ftpClient::on_pushButton_2_clicked()
 {
-    QTreeWidgetItem* curItem = ui->fileTree->currentItem();
+    QTreeWidgetItem *curItem = ui->fileTree->currentItem();
     QString fname;
-    if(curItem)
+    if (curItem)
         fname = curItem->text(2);
     else
         return;
     clientThread->arglist[0] = fname.toStdString();
-    if(fname=="." || fname=="..")
+    if (fname == "." || fname == "..")
         return;
-    if(curItem->text(0)=="d")
+    if (curItem->text(0) == "d")
         clientThread->task = TRmd;
     else
         clientThread->task = TDele;
@@ -162,9 +172,9 @@ void ftpClient::on_newButton_clicked()
 {
     QString name;
     name = QInputDialog::getText(this, "Please input a name.", "Name of new directory");
-    if(name.isEmpty())
+    if (name.isEmpty())
         return;
-    if(name=="." || name=="..")
+    if (name == "." || name == "..")
         return;
     clientThread->arglist[0] = name.toStdString();
     clientThread->task = TMkd;

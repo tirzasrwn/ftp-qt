@@ -3,36 +3,38 @@
 
 #include <iostream>
 #include <fstream>
-#include <QString>
-#include <common.h>
 #include <algorithm>
-#include <WinSock2.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <unistd.h>
+
+#include <QString>
+
 #include "infothread.h"
 
 const int PORT = 21;
 const int BUFLEN = 1000;
 const int DATABUFLEN = 1000;
-const char* const DELIMITER = "\r\n";
+const char *const DELIMITER = "\r\n";
 
 class Client
 {
 private:
-    //int executeFTPCmd(int stateCode, char* cmd, char* arg=nullptr);
     int getStateCode();
     int getPortNum();
     int getFileSize(std::string fname);
     int listPwd();
     int intoPasv();
-    int recvControl(int stateCode, std::string errorInfo="0");
+    int recvControl(int stateCode, std::string errorInfo = "0");
     int executeCmd(std::string cmd);
-    void removeSpace(std::string&);
+    void removeSpace(std::string &);
 
-    SOCKADDR_IN serverAddr;
+    sockaddr_in serverAddr;
     std::string ip_addr, username, password, INFO;
-    char* buf = new char[BUFLEN];
-    char* databuf = new char[DATABUFLEN];
-    SOCKET controlSocket;
-    SOCKET dataSocket;
+    char *buf = new char[BUFLEN];
+    char *databuf = new char[DATABUFLEN];
+    int controlSocket;
+    int16_t dataSocket;
     std::string recvInfo;
     std::string nextInfo; //JUNK
 
@@ -50,7 +52,7 @@ public:
     int rename(std::string src, std::string dst);
     int mkDir(std::string name);
 
-    InfoThread* infoThread;
+    InfoThread *infoThread;
     std::string pwd;
     std::vector<std::vector<std::string>> filelist;
 };

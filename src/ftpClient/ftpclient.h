@@ -7,11 +7,12 @@
 #include <QTreeWidgetItem>
 #include <QInputDialog>
 #include <QFileDialog>
-#include "common.h"
+
 #include "clientthread.h"
 
-namespace Ui {
-class ftpClient;
+namespace Ui
+{
+    class ftpClient;
 }
 
 class ClientThread;
@@ -41,11 +42,9 @@ private slots:
 
 private:
     Ui::ftpClient *ui;
-    ClientThread* clientThread;
+    ClientThread *clientThread;
     bool connected = false;
     QString allInfo;
 };
-
-
 
 #endif // FTPCLIENT_H
