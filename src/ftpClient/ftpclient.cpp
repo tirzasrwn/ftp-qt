@@ -31,9 +31,10 @@ void ftpClient::on_connectButton_clicked()
         if (!connected)
         {
             QString ip_addr = ui->ipEdit->text();
+            QString port = ui->portEdit->text();
             QString username = ui->userEdit->text();
             QString password = ui->passEdit->text();
-            clientThread->curClient->login(ip_addr, username, password);
+            clientThread->curClient->login(ip_addr, port, username, password);
             clientThread->task = TConnect;
             clientThread->start();
         }

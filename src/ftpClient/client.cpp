@@ -15,9 +15,10 @@ Client::~Client()
     delete databuf;
 }
 
-int Client::login(QString ip_addr, QString username, QString password)
+int Client::login(QString ip_addr, QString port, QString username, QString password)
 {
     this->ip_addr = ip_addr.toStdString();
+    this->port = port.toUInt();
     this->username = username.toStdString();
     this->password = password.toStdString();
 }
@@ -31,7 +32,7 @@ int Client::connectServer()
     // Build the server access parameter structure
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = inet_addr(ip_addr.c_str()); // Address
-    serverAddr.sin_port = htons(PORT);                       // Port
+    serverAddr.sin_port = htons(port);                       // Port
     memset(serverAddr.sin_zero, 0, sizeof(serverAddr.sin_zero));
 
     // Connect
